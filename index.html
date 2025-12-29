@@ -1,0 +1,1649 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jadwal Sholat TV Masjid</title>
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    
+    /* Embedded Essential CSS - No External Dependencies */
+    *, ::before, ::after { box-sizing: border-box; border-width: 0; border-style: solid; }
+    html { line-height: 1.5; -webkit-text-size-adjust: 100%; tab-size: 4; font-family: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; height: 100%; }
+    body { margin: 0; line-height: inherit; height: 100%; width: 100%; }
+    h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; margin: 0; }
+    a { color: inherit; text-decoration: inherit; }
+    button, input, select, textarea { font-family: inherit; font-size: 100%; line-height: inherit; color: inherit; margin: 0; padding: 0; }
+    button, select { text-transform: none; }
+    button { cursor: pointer; }
+    
+    /* Utility Classes */
+    .h-full { height: 100%; }
+    .w-full { width: 100%; }
+    .w-1\/6 { width: 16.6667%; }
+    .flex { display: flex; }
+    .flex-1 { flex: 1 1 0%; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-3 { gap: 0.75rem; }
+    .gap-6 { gap: 1.5rem; }
+    .gap-8 { gap: 2rem; }
+    .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
+    .overflow-hidden { overflow: hidden; }
+    .overflow-y-auto { overflow-y: auto; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .rounded-xl { border-radius: 0.75rem; }
+    .rounded-3xl { border-radius: 1.5rem; }
+    .rounded-full { border-radius: 9999px; }
+    .p-2 { padding: 0.5rem; }
+    .p-3 { padding: 0.75rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .text-center { text-align: center; }
+    .absolute { position: absolute; }
+    .relative { position: relative; }
+    .inset-0 { inset: 0; }
+    .transform { transform: translate(var(--tw-translate-x, 0), var(--tw-translate-y, 0)); }
+    .transition-opacity { transition-property: opacity; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .duration-300 { transition-duration: 300ms; }
+    .duration-1000 { transition-duration: 1000ms; }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+      overflow: hidden !important;
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    
+    #app {
+      overflow: hidden !important;
+    }
+    
+    .islamic-pattern {
+      background-image: 
+        repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.02) 35px, rgba(255,255,255,.02) 70px),
+        repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(255,255,255,.02) 35px, rgba(255,255,255,.02) 70px);
+    }
+    
+    .prayer-card {
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    
+    .prayer-card.active {
+      background: linear-gradient(135deg, rgba(255,193,7,0.2), rgba(255,152,0,0.2));
+      box-shadow: 0 8px 32px rgba(255,193,7,0.3);
+      transform: scale(1.02);
+    }
+    
+    .countdown-pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    
+    .marquee {
+      animation: scroll 30s linear infinite;
+      white-space: nowrap;
+    }
+    
+    @keyframes scroll {
+      0% { transform: translateX(100%); }
+      100% { transform: translateX(-100%); }
+    }
+    
+    .glow-text {
+      text-shadow: 0 0 20px rgba(255,193,7,0.5);
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body class="h-full w-full">
+  <div id="app" class="h-full w-full"></div>
+  <script>
+    // ============================================
+    // KONFIGURASI DEFAULT
+    // ============================================
+    
+    const DEFAULT_CONFIG = {
+      // Informasi Masjid
+      nama_masjid: "Masjid Al-Ikhlas",
+      alamat_masjid: "Jl. Raya Kebon Jeruk No. 123, Jakarta Barat",
+      logo: null, // Custom logo URL/Base64
+      hijri_adjustment: 0, // Koreksi hari Hijriyah (+/- hari)
+      gregorian_adjustment: 0, // Koreksi hari Masehi (+/- hari)
+      
+      // Waktu Sholat (format 24 jam: HH:MM)
+      waktu_sholat: {
+        imsak: "04:18",
+        subuh: "04:28",
+        dhuha: "06:15",
+        dhuhur: "11:52",
+        ashar: "15:12",
+        maghrib: "17:58",
+        isya: "19:10"
+      },
+      
+      // Keuangan Masjid
+      periode_keuangan: "Januari 2025",
+      pemasukan: 25000000,
+      pengeluaran: 18500000,
+      
+      // Running Text (pisahkan dengan tanda •)
+      running_text: "Selamat datang di Masjid Al-Ikhlas 🕌 Kajian Rutin Setiap Jum'at Ba'da Maghrib • Mari tertib dalam beribadah • Jaga kebersihan masjid",
+      
+      // Informasi (kosongkan jika tidak ingin ditampilkan)
+      info_1: "Mari jaga kebersihan masjid. Buang sampah pada tempatnya dan rapikan sandal setelah digunakan.",
+      info_2: "Matikan HP saat sholat dan jaga kekhusyukan ibadah. Hindari berbicara di dalam masjid.",
+      info_3: "Luruskan dan rapatkan shaf. Sholat berjamaah lebih utama daripada sholat sendirian.",
+      
+      // Slide (Gambar & Teks)
+      slides: [
+        {
+          type: 'default',
+          id: 1,
+          text: '"Dan dirikanlah sholat, sesungguhnya sholat itu mencegah dari perbuatan keji dan mungkar" - QS. Al-Ankabut: 45'
+        },
+        {
+          type: 'default',
+          id: 2,
+          text: '"Sesungguhnya rumah (ibadah) pertama yang dibangun untuk manusia ialah (Baitullah) yang di Makkah" - QS. Ali Imran: 96'
+        },
+        {
+          type: 'default',
+          id: 3,
+          text: '"Sesungguhnya beruntunglah orang-orang yang beriman, yaitu orang yang khusyuk dalam shalatnya" - QS. Al-Mu\'minun: 1-2'
+        },
+        {
+          type: 'default',
+          id: 4,
+          text: '"Bacalah Al-Qur\'an dengan tartil sesungguhnya Kami akan membacakan kepadamu bacaan yang berat" - QS. Al-Muzzammil: 4-5'
+        },
+        {
+          type: 'default',
+          id: 5,
+          text: '"Maha Suci Allah yang menjadikan matahari bercahaya dan bulan bersinar dan ditetapkan tempat peredarannya" - QS. Yunus: 5'
+        }
+      ],
+      
+      // Warna Tema (format: #RRGGBB)
+      colors: {
+        background: "#0F1B07",
+        header: "#5C821A",
+        accent: "#C6D166",
+        text: "#FFFFFF",
+        secondary_text: "#C6D166"
+      },
+      
+      // Font dan Ukuran
+      font_family: "system-ui",
+      font_size: 16,
+
+      // Audio Files (DataURL)
+      audio: {
+        adzan: null,
+        iqomah: null
+      }
+    };
+    
+    // ============================================
+    // THEMES CONFIGURATION
+    // ============================================
+    const THEMES = [
+      {
+        id: 'default',
+        name: 'Hijau Alam',
+        colors: {
+          background: "#0F1B07",
+          header: "#5C821A",
+          accent: "#C6D166",
+          text: "#FFFFFF",
+          secondary_text: "#C6D166"
+        }
+      },
+      {
+        id: 'midnight',
+        name: 'Biru Malam',
+        colors: {
+          background: "#0a1929",
+          header: "#1a237e",
+          accent: "#4fc3f7",
+          text: "#FFFFFF",
+          secondary_text: "#4fc3f7"
+        }
+      },
+      {
+        id: 'royal',
+        name: 'Emas Mewah',
+        colors: {
+          background: "#1a1a1a",
+          header: "#3e2723",
+          accent: "#ffc107",
+          text: "#FFFFFF",
+          secondary_text: "#ffc107"
+        }
+      },
+      {
+        id: 'amethyst',
+        name: 'Ungu Spiritual',
+        colors: {
+          background: "#1a0b2e",
+          header: "#4a148c",
+          accent: "#ea80fc",
+          text: "#FFFFFF",
+          secondary_text: "#ea80fc"
+        }
+      },
+      {
+        id: 'sunset',
+        name: 'Senja',
+        colors: {
+          background: "#2d1b0e",
+          header: "#bf360c",
+          accent: "#ffab91",
+          text: "#FFFFFF",
+          secondary_text: "#ffab91"
+        }
+      }
+    ];
+
+    // Load Config from LocalStorage or use Default
+    let CONFIG = JSON.parse(localStorage.getItem('mosqueConfig')) || DEFAULT_CONFIG;
+
+    // Ensure backward compatibility if new fields are added
+    CONFIG = { ...DEFAULT_CONFIG, ...CONFIG };
+    if (!CONFIG.slides) CONFIG.slides = DEFAULT_CONFIG.slides;
+    if (!CONFIG.audio) CONFIG.audio = DEFAULT_CONFIG.audio;
+    
+    // Migration: jumat -> dhuhur
+    if (CONFIG.waktu_sholat.jumat && !CONFIG.waktu_sholat.dhuhur) {
+      CONFIG.waktu_sholat.dhuhur = CONFIG.waktu_sholat.jumat;
+      delete CONFIG.waktu_sholat.jumat;
+      // Save migration
+      localStorage.setItem('mosqueConfig', JSON.stringify(CONFIG));
+    }
+
+    
+    // ============================================
+    // JANGAN EDIT DI BAWAH INI KECUALI ANDA PAHAM KODE
+    // ============================================
+
+    function getEffectiveDate() {
+      const now = new Date();
+      if (CONFIG.gregorian_adjustment) {
+        now.setDate(now.getDate() + parseInt(CONFIG.gregorian_adjustment));
+      }
+      return now;
+    }
+
+    function getPrayerTimes() {
+      const now = getEffectiveDate();
+      const isFriday = now.getDay() === 5; // 0 = Sunday, 5 = Friday
+      
+      return [
+        { name: 'Imsak', time: CONFIG.waktu_sholat.imsak, icon: '🌌' },
+        { name: 'Subuh', time: CONFIG.waktu_sholat.subuh, icon: '🌅' },
+        { name: 'Dhuha', time: CONFIG.waktu_sholat.dhuha, icon: '☀️' },
+        { 
+          name: isFriday ? "Jum'at" : 'Dhuhur', 
+          time: CONFIG.waktu_sholat.dhuhur, 
+          icon: isFriday ? '🕌' : '🕛' 
+        },
+        { name: 'Ashar', time: CONFIG.waktu_sholat.ashar, icon: '🌤️' },
+        { name: 'Maghrib', time: CONFIG.waktu_sholat.maghrib, icon: '🌆' },
+        { name: 'Isya', time: CONFIG.waktu_sholat.isya, icon: '🌙' }
+      ];
+    }
+
+    function getCurrentTime() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      return `${hours}:${minutes}:${seconds}`;
+    }
+
+    function getHijriDate(date) {
+      const options = { year: 'numeric', month: '2-digit', day: '2-digit', calendar: 'islamic-umalqura' };
+      const hijriDate = new Intl.DateTimeFormat('id-ID-u-ca-islamic-umalqura', options).format(date);
+      // Format is usually dd/mm/yyyy. We need to ensure it's formatted correctly as per request.
+      // Intl might return like "26/06/1447". 
+      // Let's parse and ensure correct format.
+      const parts = hijriDate.split('/');
+      if (parts.length === 3) {
+        // Assuming Intl returns dd/mm/yyyy for 'id-ID' locale
+        return `${parts[0]}-${parts[1]}-${parts[2]}`;
+      }
+      return hijriDate.replace(/\//g, '-');
+    }
+
+    function getCurrentDate() {
+      const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jum\'at', 'Sabtu'];
+      const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+      const hijriMonths = ['Muharram', 'Safar', 'Rabiul Awal', 'Rabiul Akhir', 'Jumadil Awal', 'Jumadil Akhir', 'Rajab', 'Sya\'ban', 'Ramadhan', 'Syawal', 'Dzulqa\'dah', 'Dzulhijjah'];
+      
+      const now = getEffectiveDate();
+      const dayName = days[now.getDay()];
+      
+      // Gregorian Date
+      const gDate = now.getDate();
+      const gMonth = months[now.getMonth()];
+      const gYear = now.getFullYear();
+      
+      // Hijri Date
+      let hDateFormatted = "";
+      try {
+        // Apply adjustment (on top of effective date)
+        const hijriDate = new Date(now);
+        hijriDate.setDate(hijriDate.getDate() + (parseInt(CONFIG.hijri_adjustment) || 0));
+
+        const hijriFormatter = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura-nu-latn', {
+            day: 'numeric',
+            month: 'numeric',
+            year: 'numeric'
+        });
+        const parts = hijriFormatter.formatToParts(hijriDate);
+        const hDay = parts.find(p => p.type === 'day').value;
+        const hMonthIndex = parseInt(parts.find(p => p.type === 'month').value) - 1;
+        const hYear = parts.find(p => p.type === 'year').value;
+        
+        const hMonthName = hijriMonths[hMonthIndex] || '';
+        hDateFormatted = `${String(hDay).padStart(2, '0')} ${hMonthName} ${hYear}`;
+      } catch (e) {
+        console.error("Hijri date error", e);
+        hDateFormatted = ""; 
+      }
+
+      return `${dayName}, ${gDate} ${gMonth} ${gYear} M / ${hDateFormatted} H`;
+    }
+
+    function getNextPrayer() {
+      const now = new Date();
+      const currentTime = now.getHours() * 60 + now.getMinutes();
+      const prayerTimes = getPrayerTimes();
+      
+      for (let prayer of prayerTimes) {
+        const [hours, minutes] = prayer.time.split(':').map(Number);
+        const prayerTime = hours * 60 + minutes;
+        
+        if (currentTime < prayerTime) {
+          const diff = prayerTime - currentTime;
+          const hoursLeft = Math.floor(diff / 60);
+          const minutesLeft = diff % 60;
+          return {
+            name: prayer.name,
+            timeLeft: `${String(hoursLeft).padStart(2, '0')}:${String(minutesLeft).padStart(2, '0')}`
+          };
+        }
+      }
+      
+      const firstPrayer = prayerTimes[0];
+      const [hours, minutes] = firstPrayer.time.split(':').map(Number);
+      const prayerTime = hours * 60 + minutes;
+      const diff = (24 * 60 - currentTime) + prayerTime;
+      const hoursLeft = Math.floor(diff / 60);
+      const minutesLeft = diff % 60;
+      
+      return {
+        name: firstPrayer.name,
+        timeLeft: `${String(hoursLeft).padStart(2, '0')}:${String(minutesLeft).padStart(2, '0')}`
+      };
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0
+      }).format(amount);
+    }
+
+    function getSlideContent(slide, index) {
+      const accentColor = CONFIG.colors.accent;
+      
+      if (slide.type === 'image') {
+        return `
+          <div class="absolute inset-0" style="background: black;">
+            <img src="${slide.url}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;" alt="Slide ${index + 1}">
+          </div>
+        `;
+      }
+      
+      // Default SVG Themes
+      if (slide.type === 'default') {
+        const id = slide.id;
+        if (id === 1) {
+          return `
+            <div class="absolute inset-0" style="background: linear-gradient(135deg, rgba(10,25,41,0.3), rgba(26,35,126,0.3));">
+              <svg width="100%" height="100%" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+                <defs>
+                  <linearGradient id="skyGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#1a237e;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#283593;stop-opacity:1" />
+                  </linearGradient>
+                </defs>
+                <rect width="800" height="600" fill="url(#skyGrad1)"/>
+                <ellipse cx="400" cy="500" rx="300" ry="80" fill="#0d47a1" opacity="0.3"/>
+                <path d="M 350 400 L 400 300 L 450 400 Z" fill="${accentColor}" opacity="0.9"/>
+                <rect x="380" y="400" width="40" height="100" fill="#1a237e"/>
+                <circle cx="400" cy="280" r="15" fill="${accentColor}"/>
+                <path d="M 300 450 Q 300 420 320 420 L 480 420 Q 500 420 500 450 Z" fill="#1a237e"/>
+                <circle cx="400" cy="150" r="60" fill="${accentColor}" opacity="0.6"/>
+                <circle cx="100" cy="100" r="3" fill="white" opacity="0.8"/>
+                <circle cx="150" cy="80" r="2" fill="white" opacity="0.6"/>
+                <circle cx="700" cy="120" r="2.5" fill="white" opacity="0.7"/>
+                <circle cx="650" cy="90" r="2" fill="white" opacity="0.5"/>
+                <circle cx="200" cy="150" r="2" fill="white" opacity="0.6"/>
+              </svg>
+            </div>
+          `;
+        } else if (id === 2) {
+          return `
+            <div class="absolute inset-0" style="background: linear-gradient(135deg, #1a237e, #0d47a1);">
+              <svg width="100%" height="100%" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+                <rect width="800" height="600" fill="#0a1929"/>
+                <circle cx="400" cy="300" r="180" fill="none" stroke="${accentColor}" stroke-width="2" opacity="0.3"/>
+                <circle cx="400" cy="300" r="140" fill="none" stroke="${accentColor}" stroke-width="2" opacity="0.5"/>
+                <rect x="320" y="240" width="160" height="120" fill="#1a1a1a" stroke="${accentColor}" stroke-width="3"/>
+                <rect x="340" y="260" width="120" height="80" fill="#2a2a2a"/>
+                <circle cx="150" cy="100" r="2" fill="white" opacity="0.8"/>
+                <circle cx="600" cy="150" r="2" fill="white" opacity="0.7"/>
+                <circle cx="200" cy="500" r="2" fill="white" opacity="0.6"/>
+                <circle cx="700" cy="450" r="2" fill="white" opacity="0.8"/>
+              </svg>
+            </div>
+          `;
+        } else if (id === 3) {
+          return `
+            <div class="absolute inset-0" style="background: linear-gradient(135deg, #283593, #1a237e);">
+              <svg width="100%" height="100%" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+                <rect width="800" height="600" fill="#1a237e"/>
+                <ellipse cx="400" cy="500" rx="350" ry="100" fill="#0d47a1" opacity="0.3"/>
+                <path d="M 250 350 Q 250 320 270 320 L 530 320 Q 550 320 550 350 L 550 500 L 250 500 Z" fill="${accentColor}" opacity="0.2"/>
+                <ellipse cx="300" cy="380" rx="30" ry="40" fill="#1a1a1a" opacity="0.6"/>
+                <ellipse cx="400" cy="380" rx="30" ry="40" fill="#1a1a1a" opacity="0.6"/>
+                <ellipse cx="500" cy="380" rx="30" ry="40" fill="#1a1a1a" opacity="0.6"/>
+                <circle cx="100" cy="80" r="50" fill="${accentColor}" opacity="0.4"/>
+              </svg>
+            </div>
+          `;
+        } else if (id === 4) {
+          return `
+            <div class="absolute inset-0" style="background: linear-gradient(135deg, #0d47a1, #1565c0);">
+              <svg width="100%" height="100%" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+                <rect width="800" height="600" fill="#0a1929"/>
+                <rect x="250" y="150" width="300" height="300" rx="10" fill="#1a1a1a" stroke="${accentColor}" stroke-width="3"/>
+                <rect x="260" y="160" width="280" height="280" rx="5" fill="#2a2a2a"/>
+                <line x1="400" y1="160" x2="400" y2="440" stroke="${accentColor}" stroke-width="2" opacity="0.5"/>
+                <circle cx="400" cy="300" r="40" fill="${accentColor}" opacity="0.3"/>
+                <path d="M 400 270 L 410 290 L 390 290 Z" fill="${accentColor}"/>
+                <circle cx="120" cy="120" r="2" fill="white" opacity="0.7"/>
+                <circle cx="680" cy="480" r="2" fill="white" opacity="0.7"/>
+              </svg>
+            </div>
+          `;
+        } else if (id === 5) {
+          return `
+            <div class="absolute inset-0" style="background: linear-gradient(135deg, #0a0e27, #1a237e);">
+              <svg width="100%" height="100%" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+                <rect width="800" height="600" fill="#050810"/>
+                <circle cx="600" cy="150" r="70" fill="${accentColor}" opacity="0.8"/>
+                <circle cx="620" cy="140" r="70" fill="#050810"/>
+                <circle cx="100" cy="100" r="2" fill="white" opacity="0.9"/>
+                <circle cx="150" cy="80" r="2" fill="white" opacity="0.7"/>
+                <circle cx="200" cy="120" r="1.5" fill="white" opacity="0.8"/>
+                <circle cx="700" cy="120" r="2.5" fill="white" opacity="0.9"/>
+                <circle cx="650" cy="90" r="2" fill="white" opacity="0.6"/>
+                <circle cx="300" cy="200" r="1.5" fill="white" opacity="0.7"/>
+                <circle cx="450" cy="150" r="2" fill="white" opacity="0.8"/>
+                <circle cx="250" cy="400" r="2" fill="white" opacity="0.7"/>
+                <circle cx="600" cy="450" r="1.5" fill="white" opacity="0.8"/>
+                <circle cx="350" cy="500" r="2" fill="white" opacity="0.6"/>
+                <path d="M 150 500 L 200 420 L 250 500 Z" fill="#1a1a1a" opacity="0.5"/>
+                <path d="M 500 500 L 550 430 L 600 500 Z" fill="#1a1a1a" opacity="0.5"/>
+              </svg>
+            </div>
+          `;
+        }
+      }
+      
+      return '';
+    }
+
+    function renderApp() {
+      const customFont = CONFIG.font_family;
+      const baseFontStack = 'system-ui, -apple-system, sans-serif';
+      const baseSize = CONFIG.font_size;
+
+      const bgColor = CONFIG.colors.background;
+      const headerColor = CONFIG.colors.header;
+      const accentColor = CONFIG.colors.accent;
+      const textColor = CONFIG.colors.text;
+      const secondaryTextColor = CONFIG.colors.secondary_text;
+
+      const saldo = CONFIG.pemasukan - CONFIG.pengeluaran;
+      const currentTime = getCurrentTime();
+      const currentDate = getCurrentDate();
+      const nextPrayer = getNextPrayer();
+      const prayerTimes = getPrayerTimes();
+
+      const app = document.getElementById('app');
+      app.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      app.style.background = `linear-gradient(135deg, ${bgColor} 0%, #1a237e 100%)`;
+
+      app.innerHTML = `
+        <div class="h-full w-full flex flex-col islamic-pattern">
+          <!-- Header -->
+          <div class="p-3" style="background: linear-gradient(135deg, ${headerColor} 0%, rgba(26, 41, 66, 0.95) 100%); box-shadow: 0 4px 20px rgba(0,0,0,0.3); padding-top: 0.4%; padding-bottom: 0.4%;">
+            <div style="display: grid; grid-template-columns: 20% 1fr 25%; align-items: center; gap: 15px;">
+              <!-- Left - Time Display -->
+              <div class="text-center" style="padding: 6px; background: transparent; height: 60px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <div style="font-family: ${customFont}, ${baseFontStack}; font-size: 14px; color: #FFD700; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Waktu Sekarang</div>
+                <div id="header-time" class="glow-text" style="font-family: ${customFont}, ${baseFontStack}; font-size: 32px; font-weight: 800; color: #FFD700; letter-spacing: 1px;">${currentTime}</div>
+              </div>
+              
+              <!-- Center - Mosque Info & Logo -->
+              <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <!-- Logo Masjid -->
+                ${CONFIG.logo ? `
+                  <img src="${CONFIG.logo}" style="width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(198, 209, 102, 0.4));" alt="Logo Masjid">
+                ` : `
+                  <svg width="60" height="60" viewBox="0 0 100 100" style="filter: drop-shadow(0 4px 12px rgba(198, 209, 102, 0.4));">
+                    <defs>
+                      <linearGradient id="logoGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:${accentColor};stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#FF9800;stop-opacity:1" />
+                      </linearGradient>
+                    </defs>
+                    <path d="M 30 60 Q 30 35 50 35 Q 70 35 70 60 Z" fill="url(#logoGrad)"/>
+                    <circle cx="50" cy="30" r="8" fill="${accentColor}"/>
+                    <circle cx="53" cy="28" r="8" fill="${headerColor}"/>
+                    <path d="M 50 18 L 52 24 L 58 24 L 53 28 L 55 34 L 50 30 L 45 34 L 47 28 L 42 24 L 48 24 Z" fill="${accentColor}"/>
+                    <rect x="35" y="60" width="30" height="30" fill="${headerColor}" stroke="${accentColor}" stroke-width="1.5"/>
+                    <path d="M 45 75 Q 45 70 50 70 Q 55 70 55 75 L 55 90 L 45 90 Z" fill="${accentColor}"/>
+                    <circle cx="42" cy="68" r="2" fill="${accentColor}"/>
+                    <circle cx="58" cy="68" r="2" fill="${accentColor}"/>
+                    <rect x="25" y="50" width="6" height="40" fill="${headerColor}" stroke="${accentColor}" stroke-width="1"/>
+                    <rect x="69" y="50" width="6" height="40" fill="${headerColor}" stroke="${accentColor}" stroke-width="1"/>
+                    <circle cx="28" cy="48" r="4" fill="${accentColor}"/>
+                    <circle cx="72" cy="48" r="4" fill="${accentColor}"/>
+                    <path d="M 28 40 L 30 45 L 26 45 Z" fill="${accentColor}"/>
+                    <path d="M 72 40 L 74 45 L 70 45 Z" fill="${accentColor}"/>
+                  </svg>
+                `}
+
+                <div style="text-align: left;">
+                  <h1 class="glow-text" style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 1.8}px; font-weight: 800; color: ${accentColor}; letter-spacing: 1px; margin-bottom: 2px;">${CONFIG.nama_masjid}</h1>
+                  <p style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 0.9}px; color: ${secondaryTextColor};">${CONFIG.alamat_masjid}</p>
+                </div>
+              </div>
+              
+              <!-- Right - Date Display -->
+              <div style="text-align: right; justify-self: end; display: flex; flex-direction: column; align-items: flex-end; justify-content: center; height: 60px; width: 100%;">
+                <!-- Date -->
+                <h3 id="header-date" style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 0.8}px; color: ${textColor}; font-weight: 600; white-space: nowrap;">${currentDate}</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Content -->
+          <div class="flex-1 flex gap-3 p-2 overflow-hidden">
+            <!-- Left Panel - Prayer Times -->
+            <div class="w-1/6 flex flex-col gap-2" style="margin-top: 0.5cm;">
+              <!-- Prayer Times Header -->
+              <div class="prayer-card p-3 rounded-xl text-center" style="background: linear-gradient(135deg, ${headerColor}, rgba(26, 41, 66, 0.9)); box-shadow: 0 8px 32px rgba(0,0,0,0.2); border: 2px solid ${accentColor}; height: 120px; display: flex; flex-direction: column; justify-content: center;">
+                <div style="font-family: ${customFont}, ${baseFontStack}; font-size: 20px; font-weight: 800; color: ${accentColor}; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px;">JADWAL IMSAKIYAH</div>
+                <div style="font-family: ${customFont}, ${baseFontStack}; font-size: 18px; font-weight: 700; color: ${textColor}; letter-spacing: 0.5px; text-transform: uppercase;">HARI INI</div>
+              </div>
+              
+              <!-- Prayer Times List -->
+              <div class="flex flex-col gap-2" id="prayer-times-list" style="gap: 4px;">
+                ${prayerTimes.map((prayer, index) => `
+                  <div class="prayer-card p-2 rounded-lg flex items-center justify-between" data-prayer="${prayer.name}" style="background: rgba(255,255,255,0.08); border: 2px solid ${accentColor};">
+                    <div class="flex items-center gap-2">
+                      <span style="font-size: ${baseSize * 1.8}px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">${prayer.icon}</span>
+                      <div>
+                        <div style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 1.1}px; font-weight: 700; color: ${textColor}; letter-spacing: 0.5px;">${prayer.name}</div>
+                      </div>
+                    </div>
+                    <div style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 1.4}px; font-weight: 800; color: ${accentColor}; text-shadow: 0 2px 8px rgba(255,193,7,0.3);">${prayer.time}</div>
+                  </div>
+                `).join('')}
+              </div>
+
+              <!-- Countdown Next Prayer -->
+              <div class="prayer-card p-2 rounded-xl" style="background: linear-gradient(135deg, rgba(255,193,7,0.15), rgba(255,152,0,0.15)); border: 2px solid ${accentColor}; box-shadow: 0 8px 32px rgba(255,193,7,0.3); margin-top: 0.5mm; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                <div style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 1.0}px; color: ${secondaryTextColor}; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Menuju Waktu</div>
+                <div id="next-prayer-name" style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 1.5}px; font-weight: 800; color: ${accentColor}; margin-bottom: 6px;">${nextPrayer.name}</div>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 8px;" class="countdown-pulse">
+                  <span style="font-size: ${baseSize * 1.6}px;">⏰</span>
+                  <span id="countdown" style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 1.6}px; font-weight: 800; color: ${textColor};">${nextPrayer.timeLeft}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Center - Image Slider & Verse -->
+            <div class="flex-1 flex flex-col" style="gap: calc(5% - 1cm); margin-top: 1mm; padding-top: 1mm;">
+              <!-- Image Slider -->
+              <div class="rounded-3xl overflow-hidden relative" style="box-shadow: 0 12px 48px rgba(0,0,0,0.4); height: calc(70% + 1.5cm);">
+                <div id="imageSlider" class="h-full w-full relative">
+                  ${CONFIG.slides.map((slide, index) => `
+                    <div class="slide absolute inset-0 transition-opacity duration-1000" style="opacity: ${index === 0 ? '1' : '0'};">
+                      ${getSlideContent(slide, index)}
+                    </div>
+                  `).join('')}
+
+                  <!-- Slide Indicators -->
+                  <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10" style="transform: translateX(-50%);">
+                    ${CONFIG.slides.map((_, index) => `
+                      <div class="slide-indicator w-3 h-3 rounded-full bg-white transition-opacity duration-300" style="width: 12px; height: 12px; border-radius: 50%; background: white; opacity: ${index === 0 ? '1' : '0.3'};"></div>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Verse Display Below Slider -->
+              <div class="flex items-center justify-center" style="padding: 12px 16px; height: 120px; display: flex; flex-direction: column; justify-content: center;">
+                <div class="text-center" style="width: 100%; padding: 0 16px;">
+                  <div class="flex items-center justify-center gap-2 mb-2" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-size: ${baseSize * 1.1}px;">📖</span>
+                    <h3 style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 0.85}px; font-weight: 700; color: ${accentColor};">Ayat Pilihan</h3>
+                  </div>
+                  <div id="currentVerseDisplay" style="font-family: Georgia, 'Times New Roman', serif, ${customFont}, ${baseFontStack}; font-size: ${baseSize * 1}px; color: ${textColor}; line-height: 1.6; font-style: italic; text-align: center; font-weight: 600; transition: opacity 0.5s ease-in-out;">
+                    ${CONFIG.slides[0].text}
+                  </div>
+                  
+                  <!-- Settings Button -->
+                  <div style="margin-top: 10px;">
+                    <button onclick="openSettings()" style="background: rgba(255, 255, 255, 0.1); border: 1px solid ${accentColor}; color: ${accentColor}; padding: 4px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; transition: all 0.3s ease;">
+                      ⚙️ Pengaturan
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Panel - Finance & Info -->
+            <div class="w-1/6 flex flex-col gap-2" style="margin-top: 0.5cm;">
+              <!-- Finance Card -->
+              <div class="prayer-card p-2 rounded-xl" style="background: linear-gradient(135deg, ${headerColor}, rgba(26, 41, 66, 0.9)); box-shadow: 0 8px 32px rgba(0,0,0,0.2); border: 2px solid ${accentColor};">
+                <div class="mb-2" style="text-align: center;">
+                  <h3 style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 0.85}px; font-weight: 700; color: ${textColor}; text-transform: uppercase; letter-spacing: 0.5px;">Keuangan Masjid</h3>
+                </div>
+                <div style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 0.9}px; color: ${secondaryTextColor}; margin-bottom: 8px; text-align: center; font-weight: 600;">Periode: ${CONFIG.periode_keuangan}</div>
+                <div class="space-y-2">
+                  <div class="p-2 rounded-lg" style="background: rgba(76,175,80,0.1);">
+                    <div style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 0.9}px; color: ${secondaryTextColor}; text-align: center; font-weight: 600;">Pemasukan</div>
+                    <div style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 1.1}px; font-weight: 700; color: #4CAF50; margin-top: 2px; text-align: center;">${formatCurrency(CONFIG.pemasukan)}</div>
+                  </div>
+                  <div class="p-2 rounded-lg" style="background: rgba(244,67,54,0.1);">
+                    <div style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 0.9}px; color: ${secondaryTextColor}; text-align: center; font-weight: 600;">Pengeluaran</div>
+                    <div style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 1.1}px; font-weight: 700; color: #F44336; margin-top: 2px; text-align: center;">${formatCurrency(CONFIG.pengeluaran)}</div>
+                  </div>
+                  <div class="p-2 rounded-lg" style="background: rgba(33,150,243,0.1);">
+                    <div style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 0.9}px; color: ${secondaryTextColor}; text-align: center; font-weight: 600;">Saldo</div>
+                    <div style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 1.2}px; font-weight: 800; color: #2196F3; margin-top: 2px; text-align: center;">${formatCurrency(saldo)}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Info Card -->
+              <div class="flex-1 prayer-card rounded-xl" style="background: linear-gradient(135deg, ${headerColor}, rgba(26, 41, 66, 0.9)); box-shadow: 0 8px 32px rgba(0,0,0,0.2); border: 2px solid ${accentColor}; padding: 12px 14px;">
+                <div class="mb-2" style="text-align: center; margin-bottom: 8px;">
+                  <h3 style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 1.2}px; font-weight: 700; color: ${textColor};">INFORMASI</h3>
+                </div>
+                <div id="infoContainer" style="position: relative; height: calc(100% - 45px); overflow: hidden;">
+                  <div id="infoScroller" style="position: absolute; width: 100%; transition: opacity 0.8s ease-in-out;">
+                    ${CONFIG.info_1 ? `
+                    <div class="info-item p-3 rounded-lg" style="background: rgba(255,255,255,0.05); margin-bottom: 8px; padding: 12px; border-radius: 8px;">
+                      <div style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 0.85}px; color: ${textColor}; line-height: 1.6; white-space: normal; word-wrap: break-word; text-align: justify;">${CONFIG.info_1}</div>
+                    </div>
+                    ` : ''}
+                    ${CONFIG.info_2 ? `
+                    <div class="info-item p-3 rounded-lg" style="background: rgba(255,255,255,0.05); margin-bottom: 8px; padding: 12px; border-radius: 8px;">
+                      <div style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 0.85}px; color: ${textColor}; line-height: 1.6; white-space: normal; word-wrap: break-word; text-align: justify;">${CONFIG.info_2}</div>
+                    </div>
+                    ` : ''}
+                    ${CONFIG.info_3 ? `
+                    <div class="info-item p-3 rounded-lg" style="background: rgba(255,255,255,0.05); margin-bottom: 8px; padding: 12px; border-radius: 8px;">
+                      <div style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 0.85}px; color: ${textColor}; line-height: 1.6; white-space: normal; word-wrap: break-word; text-align: justify;">${CONFIG.info_3}</div>
+                    </div>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Bar -->
+          <div class="p-3" style="background: linear-gradient(135deg, ${headerColor} 0%, rgba(26, 41, 66, 0.95) 100%); box-shadow: 0 -4px 20px rgba(0,0,0,0.3);">
+            <div class="overflow-hidden">
+              <div class="marquee" style="font-family: ${customFont}, ${baseFontStack}; font-size: ${baseSize * 1}px; font-weight: 600; color: ${textColor};">
+                🕌 ${CONFIG.running_text}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      initializeSlider();
+      initializeInfoScroller();
+      startClocks();
+      checkPrayerTimeInterval();
+    }
+
+    // Image Slider Logic
+    let currentSlide = 0;
+    let adzanMode = false;
+
+    function initializeSlider() {
+      const slides = document.querySelectorAll('.slide');
+      const indicators = document.querySelectorAll('.slide-indicator');
+
+      function showSlide(index) {
+        slides.forEach((slide, i) => {
+          slide.style.opacity = i === index ? '1' : '0';
+        });
+        indicators.forEach((indicator, i) => {
+          indicator.style.opacity = i === index ? '1' : '0.3';
+        });
+        
+        // Update current verse display
+        const verseDisplay = document.getElementById('currentVerseDisplay');
+        if (verseDisplay) {
+          verseDisplay.style.opacity = '0';
+          setTimeout(() => {
+            verseDisplay.textContent = CONFIG.slides[index].text;
+            verseDisplay.style.opacity = '1';
+          }, 500);
+        }
+      }
+
+      function nextSlide() {
+        if (!adzanMode) {
+          currentSlide = (currentSlide + 1) % slides.length;
+          showSlide(currentSlide);
+        }
+      }
+
+      // Auto slide every 10 seconds
+      setInterval(nextSlide, 10000);
+    }
+
+    // Info scroller
+    function initializeInfoScroller() {
+      let infoIndex = 0;
+      const infoItems = document.querySelectorAll('.info-item');
+      const totalInfoItems = infoItems.length;
+
+      function showSingleInfo() {
+        if (totalInfoItems > 0) {
+          infoItems.forEach((item, idx) => {
+            item.style.display = 'none';
+          });
+          
+          if (infoItems[infoIndex]) {
+            infoItems[infoIndex].style.display = 'block';
+          }
+          
+          infoIndex = (infoIndex + 1) % totalInfoItems;
+        }
+      }
+
+      showSingleInfo();
+
+      if (totalInfoItems > 1) {
+        setInterval(showSingleInfo, 10000);
+      }
+    }
+
+    // Clock updates
+    function startClocks() {
+      setInterval(() => {
+        const headerTimeElement = document.getElementById('header-time');
+        if (headerTimeElement) {
+          headerTimeElement.textContent = getCurrentTime();
+        }
+
+        const headerDateElement = document.getElementById('header-date');
+        if (headerDateElement) {
+          headerDateElement.textContent = getCurrentDate();
+        }
+
+        const countdownElement = document.getElementById('countdown');
+        const nextPrayerNameElement = document.getElementById('next-prayer-name');
+        if (countdownElement && nextPrayerNameElement) {
+          const nextPrayer = getNextPrayer();
+          countdownElement.textContent = nextPrayer.timeLeft;
+          nextPrayerNameElement.textContent = nextPrayer.name;
+        }
+
+        // Update active prayer highlight
+        updateActivePrayer();
+      }, 1000);
+    }
+
+    function updateActivePrayer() {
+      const now = new Date();
+      const currentTime = now.getHours() * 60 + now.getMinutes();
+      const prayerTimes = getPrayerTimes();
+      
+      const prayerCards = document.querySelectorAll('#prayer-times-list .prayer-card');
+      
+      prayerCards.forEach((card, index) => {
+        const prayer = prayerTimes[index];
+        const [hours, minutes] = prayer.time.split(':').map(Number);
+        const prayerTime = hours * 60 + minutes;
+        
+        // Check if current time is within 30 minutes after prayer time
+        const timeDiff = currentTime - prayerTime;
+        if (timeDiff >= 0 && timeDiff <= 30) {
+          card.classList.add('active');
+        } else {
+          card.classList.remove('active');
+        }
+      });
+    }
+
+    // Prayer time checker
+    function checkPrayerTime() {
+      const now = new Date();
+      const currentHour = String(now.getHours()).padStart(2, '0');
+      const currentMinute = String(now.getMinutes()).padStart(2, '0');
+      const currentTime = `${currentHour}:${currentMinute}`;
+      const prayerTimes = getPrayerTimes();
+
+      prayerTimes.forEach(prayer => {
+        if (prayer.time === currentTime && !adzanMode) {
+          showAdzanNotification(prayer.name, prayer.time);
+        }
+      });
+    }
+
+    function checkPrayerTimeInterval() {
+      setInterval(checkPrayerTime, 1000);
+    }
+
+    function playBeep() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        
+        const audioCtx = new AudioContext();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // 880Hz
+        
+        // Envelope
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.1);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.5);
+      } catch (e) {
+        console.error("Audio play failed", e);
+      }
+    }
+
+    function playAlertSound(type) {
+      // Check if custom sound exists
+      if (CONFIG.audio && CONFIG.audio[type]) {
+        const audio = new Audio(CONFIG.audio[type]);
+        audio.play().catch(e => console.error("Error playing custom audio:", e));
+      } else {
+        // Fallback for iqomah only
+        if (type === 'iqomah') {
+           playBeep();
+           setTimeout(playBeep, 800);
+           setTimeout(playBeep, 1600);
+        }
+      }
+    }
+
+    function showAdzanNotification(prayerName, prayerTime) {
+      playAlertSound('adzan');
+      adzanMode = true;
+      
+      const slides = document.querySelectorAll('.slide');
+      const indicators = document.querySelectorAll('.slide-indicator');
+      
+      slides.forEach(slide => {
+        slide.style.opacity = '0';
+      });
+      
+      indicators.forEach(indicator => {
+        indicator.style.opacity = '0';
+      });
+
+      const imageSlider = document.getElementById('imageSlider');
+      const adzanOverlay = document.createElement('div');
+      adzanOverlay.id = 'adzanOverlay';
+      adzanOverlay.style.cssText = `
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(92, 130, 26, 0.98), rgba(15, 27, 7, 0.98));
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        animation: fadeIn 1s ease-in-out;
+      `;
+
+      adzanOverlay.innerHTML = `
+        <style>
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+          }
+          .adzan-pulse {
+            animation: pulse 2s ease-in-out infinite;
+          }
+        </style>
+        <div style="text-align: center; padding: 40px;">
+          <div class="adzan-pulse" style="font-size: 120px; margin-bottom: 20px; filter: drop-shadow(0 10px 30px rgba(198, 209, 102, 0.6));">
+            🕌
+          </div>
+          <h1 style="font-family: ${CONFIG.font_family}, system-ui, sans-serif; font-size: ${CONFIG.font_size * 4}px; font-weight: 900; color: ${CONFIG.colors.accent}; margin-bottom: 30px; text-shadow: 0 4px 20px rgba(198, 209, 102, 0.5); letter-spacing: 2px;">
+            SAATNYA ADZAN
+          </h1>
+          <div style="background: rgba(198, 209, 102, 0.2); padding: 30px 60px; border-radius: 20px; border: 3px solid ${CONFIG.colors.accent}; box-shadow: 0 10px 40px rgba(198, 209, 102, 0.3);">
+            <div style="font-family: ${CONFIG.font_family}, system-ui, sans-serif; font-size: ${CONFIG.font_size * 2.5}px; font-weight: 800; color: ${CONFIG.colors.text}; margin-bottom: 15px;">
+              ${prayerName}
+            </div>
+            <div style="font-family: ${CONFIG.font_family}, system-ui, sans-serif; font-size: ${CONFIG.font_size * 3.5}px; font-weight: 900; color: ${CONFIG.colors.accent}; text-shadow: 0 4px 20px rgba(255, 193, 7, 0.5);">
+              ${prayerTime}
+            </div>
+          </div>
+          <div style="margin-top: 40px; font-family: ${CONFIG.font_family}, system-ui, sans-serif; font-size: ${CONFIG.font_size * 1.5}px; color: ${CONFIG.colors.secondary_text}; font-style: italic;">
+            "الصَّلَاةُ خَيْرٌ مِنَ النَّوْمِ"
+          </div>
+          <div style="margin-top: 10px; font-family: ${CONFIG.font_family}, system-ui, sans-serif; font-size: ${CONFIG.font_size * 1.2}px; color: ${CONFIG.colors.text};">
+            Sholat lebih baik daripada tidur
+          </div>
+        </div>
+      `;
+
+      imageSlider.appendChild(adzanOverlay);
+
+      const verseDisplay = document.getElementById('currentVerseDisplay');
+      if (verseDisplay) {
+        verseDisplay.style.opacity = '0';
+        setTimeout(() => {
+          verseDisplay.textContent = `⏰ Telah tiba waktu ${prayerName} - Segera tunaikan sholat berjamaah`;
+          verseDisplay.style.opacity = '1';
+        }, 500);
+      }
+
+      // Auto hide after 30 seconds and show Iqomah
+      setTimeout(() => {
+        hideAdzanNotification();
+        showIqomahNotification();
+      }, 30000);
+    }
+
+    function hideAdzanNotification() {
+      const adzanOverlay = document.getElementById('adzanOverlay');
+      if (adzanOverlay) {
+        adzanOverlay.remove();
+      }
+    }
+
+    function showIqomahNotification() {
+      adzanMode = true;
+      
+      const imageSlider = document.getElementById('imageSlider');
+      const iqomahOverlay = document.createElement('div');
+      iqomahOverlay.id = 'iqomahOverlay';
+      iqomahOverlay.style.cssText = `
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(15, 27, 7, 0.98), rgba(92, 130, 26, 0.98));
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        animation: fadeIn 1s ease-in-out;
+      `;
+
+      let iqomahCountdown = 600;
+      
+      iqomahOverlay.innerHTML = `
+        <style>
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+          }
+          .iqomah-pulse {
+            animation: pulse 2s ease-in-out infinite;
+          }
+        </style>
+        <div style="text-align: center; padding: 40px;">
+          <div class="iqomah-pulse" style="font-size: 120px; margin-bottom: 20px; filter: drop-shadow(0 10px 30px rgba(198, 209, 102, 0.6));">
+            🕌
+          </div>
+          <h1 style="font-family: ${CONFIG.font_family}, system-ui, sans-serif; font-size: ${CONFIG.font_size * 4}px; font-weight: 900; color: ${CONFIG.colors.accent}; margin-bottom: 30px; text-shadow: 0 4px 20px rgba(198, 209, 102, 0.5); letter-spacing: 2px;">
+            IQOMAH
+          </h1>
+          <div style="background: rgba(198, 209, 102, 0.2); padding: 30px 60px; border-radius: 20px; border: 3px solid ${CONFIG.colors.accent}; box-shadow: 0 10px 40px rgba(198, 209, 102, 0.3);">
+            <div style="font-family: ${CONFIG.font_family}, system-ui, sans-serif; font-size: ${CONFIG.font_size * 2}px; font-weight: 700; color: ${CONFIG.colors.text}; margin-bottom: 20px;">
+              Hitung Mundur Menuju Waktu Iqomah
+            </div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;" class="iqomah-pulse">
+              <span style="font-size: ${CONFIG.font_size * 1.2}px;">⏰</span>
+              <span id="iqomahCountdown" style="font-family: ${CONFIG.font_family}, system-ui, sans-serif; font-size: ${CONFIG.font_size * 3.5}px; font-weight: 900; color: ${CONFIG.colors.accent}; text-shadow: 0 4px 20px rgba(255, 193, 7, 0.5);">
+                10:00
+              </span>
+            </div>
+          </div>
+          <div style="margin-top: 40px; font-family: ${CONFIG.font_family}, system-ui, sans-serif; font-size: ${CONFIG.font_size * 1.5}px; color: ${CONFIG.colors.secondary_text}; font-style: italic;">
+            "قَدْ قَامَتِ الصَّلَاةُ"
+          </div>
+          <div style="margin-top: 10px; font-family: ${CONFIG.font_family}, system-ui, sans-serif; font-size: ${CONFIG.font_size * 1.2}px; color: ${CONFIG.colors.text};">
+            Telah didirikan sholat
+          </div>
+        </div>
+      `;
+
+      imageSlider.appendChild(iqomahOverlay);
+
+      const verseDisplay = document.getElementById('currentVerseDisplay');
+      if (verseDisplay) {
+        verseDisplay.style.opacity = '0';
+        setTimeout(() => {
+          verseDisplay.textContent = '🕌 Persiapkan diri untuk sholat berjamaah - Luruskan dan rapatkan shaf';
+          verseDisplay.style.opacity = '1';
+        }, 500);
+      }
+
+      const iqomahInterval = setInterval(() => {
+        iqomahCountdown--;
+        
+        const minutes = Math.floor(iqomahCountdown / 60);
+        const seconds = iqomahCountdown % 60;
+        const countdownDisplay = document.getElementById('iqomahCountdown');
+        
+        if (countdownDisplay) {
+          countdownDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        if (iqomahCountdown <= 0) {
+          clearInterval(iqomahInterval);
+          playAlertSound('iqomah');
+          hideIqomahNotification();
+        }
+      }, 1000);
+    }
+
+    function hideIqomahNotification() {
+      adzanMode = false;
+      const iqomahOverlay = document.getElementById('iqomahOverlay');
+      if (iqomahOverlay) {
+        iqomahOverlay.remove();
+      }
+      
+      const slides = document.querySelectorAll('.slide');
+      const indicators = document.querySelectorAll('.slide-indicator');
+      
+      slides[currentSlide].style.opacity = '1';
+      indicators.forEach((indicator, i) => {
+        indicator.style.opacity = i === currentSlide ? '1' : '0.3';
+      });
+    }
+
+    // ============================================
+    // SETTINGS MENU LOGIC
+    // ============================================
+
+    window.applyTheme = function(themeId) {
+      const theme = THEMES.find(t => t.id === themeId);
+      if (theme) {
+        const updateColor = (key, value) => {
+           const textInput = document.getElementById('color_' + key);
+           const pickerInput = document.getElementById('color_' + key + '_picker');
+           if (textInput) textInput.value = value;
+           if (pickerInput) pickerInput.value = value;
+        };
+        
+        updateColor('background', theme.colors.background);
+        updateColor('header', theme.colors.header);
+        updateColor('accent', theme.colors.accent);
+        updateColor('text', theme.colors.text);
+        updateColor('secondary_text', theme.colors.secondary_text);
+      }
+    };
+
+    function openSettings() {
+      // Prevent multiple modals
+      if (document.getElementById('settingsModal')) return;
+
+      const modal = document.createElement('div');
+      modal.id = 'settingsModal';
+      modal.style.cssText = `
+        position: fixed; 
+        inset: 0; 
+        background: rgba(0,0,0,0.85); 
+        z-index: 2000; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        padding: 20px;
+        backdrop-filter: blur(5px);
+      `;
+      
+      const accentColor = CONFIG.colors.accent;
+      const headerColor = CONFIG.colors.header;
+      
+      let slidesHtml = '';
+      CONFIG.slides.forEach((slide, index) => {
+        slidesHtml += `
+          <div class="slide-input-group" style="background: rgba(255,255,255,0.05); padding: 10px; margin-bottom: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+              <label style="color: ${accentColor}; font-weight: bold;">Slide ${index + 1}</label>
+              ${CONFIG.slides.length > 1 ? `<button type="button" onclick="removeSlide(${index})" style="color: #ff4444; background: none; border: none; cursor: pointer;">🗑️ Hapus</button>` : ''}
+            </div>
+            
+            <!-- Image Source Selection -->
+            <div style="margin-bottom: 8px;">
+               <label style="display: block; color: #ccc; font-size: 12px; margin-bottom: 2px;">Sumber Gambar</label>
+               <div style="display: flex; gap: 10px; margin-bottom: 5px;">
+                 <input type="text" name="slide_url_${index}" value="${slide.type === 'image' && !slide.url.startsWith('data:') ? slide.url : ''}" placeholder="URL Gambar (https://...)" style="flex: 1; padding: 5px; background: rgba(0,0,0,0.3); border: 1px solid #444; color: white; border-radius: 4px;">
+                 <span style="color: #aaa; align-self: center;">atau</span>
+                 <div style="flex: 1; position: relative;">
+                   <input type="file" id="file_input_${index}" accept="image/*" style="width: 100%; color: #aaa; font-size: 12px;">
+                 </div>
+               </div>
+               ${slide.type === 'image' ? `
+                 <div style="margin-top: 5px; display: flex; align-items: center; gap: 10px;">
+                   <span style="color: #888; font-size: 11px;">Preview saat ini:</span>
+                   <img src="${slide.url}" style="height: 30px; border-radius: 4px; border: 1px solid #555;">
+                   <input type="hidden" name="slide_existing_data_${index}" value="${slide.url}">
+                 </div>
+               ` : ''}
+            </div>
+
+            <div>
+              <label style="display: block; color: #ccc; font-size: 12px; margin-bottom: 2px;">Teks / Ayat</label>
+              <textarea name="slide_text_${index}" rows="3" style="width: 100%; padding: 5px; background: rgba(0,0,0,0.3); border: 1px solid #444; color: white; border-radius: 4px;">${slide.text}</textarea>
+            </div>
+            <input type="hidden" name="slide_type_${index}" value="${slide.type}">
+            <input type="hidden" name="slide_id_${index}" value="${slide.id || 0}">
+          </div>
+        `;
+      });
+
+      modal.innerHTML = `
+        <div style="background: #1a1a1a; width: 100%; max-width: 800px; height: 90vh; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid ${accentColor}; box-shadow: 0 0 20px rgba(0,0,0,0.5);">
+          <!-- Header -->
+          <div style="padding: 15px 20px; background: ${headerColor}; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333;">
+            <h2 style="color: white; font-weight: bold; font-size: 18px;">⚙️ Pengaturan Jadwal Sholat</h2>
+            <button onclick="closeSettings()" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">&times;</button>
+          </div>
+          
+          <!-- Content -->
+          <div style="flex: 1; overflow-y: auto; padding: 20px;">
+            <form id="settingsForm" onsubmit="saveSettings(event)">
+              
+              <!-- Informasi Masjid -->
+              <h3 style="color: ${accentColor}; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 15px;">1. Informasi Masjid</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px;">
+                <div>
+                  <label style="display: block; color: #aaa; margin-bottom: 5px;">Nama Masjid</label>
+                  <input type="text" name="nama_masjid" value="${CONFIG.nama_masjid}" style="width: 100%; padding: 8px; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 4px;">
+                </div>
+                <div>
+                  <label style="display: block; color: #aaa; margin-bottom: 5px;">Alamat</label>
+                  <input type="text" name="alamat_masjid" value="${CONFIG.alamat_masjid}" style="width: 100%; padding: 8px; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 4px;">
+                </div>
+              </div>
+              
+              <!-- Hijri Adjustment -->
+              <div style="margin-bottom: 10px;">
+                <label style="display: block; color: #aaa; margin-bottom: 5px;">Koreksi Tanggal Hijriyah (Hari)</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <input type="number" name="hijri_adjustment" value="${CONFIG.hijri_adjustment || 0}" style="width: 100px; padding: 8px; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 4px;">
+                  <span style="font-size: 12px; color: #888;">Isi 1, 2, -1, atau -2 untuk menyesuaikan tanggal.</span>
+                </div>
+              </div>
+
+              <!-- Gregorian Adjustment -->
+              <div style="margin-bottom: 10px;">
+                <label style="display: block; color: #aaa; margin-bottom: 5px;">Koreksi Tanggal Masehi (Hari)</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <input type="number" name="gregorian_adjustment" value="${CONFIG.gregorian_adjustment || 0}" style="width: 100px; padding: 8px; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 4px;">
+                  <span style="font-size: 12px; color: #888;">Gunakan jika tanggal sistem salah.</span>
+                </div>
+              </div>
+
+              <!-- Logo Masjid Input -->
+              <div style="margin-bottom: 20px;">
+                <label style="display: block; color: #aaa; margin-bottom: 5px;">Logo Masjid</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  ${CONFIG.logo ? `<img src="${CONFIG.logo}" style="width: 40px; height: 40px; object-fit: contain; background: rgba(255,255,255,0.1); padding: 2px; border-radius: 4px;">` : ''}
+                  <div style="flex: 1;">
+                     <div style="display: flex; gap: 10px; margin-bottom: 5px;">
+                       <input type="text" name="logo_url" value="${CONFIG.logo && !CONFIG.logo.startsWith('data:') ? CONFIG.logo : ''}" placeholder="URL Logo (https://...)" style="flex: 1; padding: 8px; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 4px;">
+                       <span style="color: #aaa; align-self: center;">atau</span>
+                       <div style="flex: 1; position: relative;">
+                         <input type="file" id="logo_file_input" accept="image/*" style="width: 100%; color: #aaa; font-size: 12px;">
+                       </div>
+                     </div>
+                     <div style="font-size: 11px; color: #666;">*Biarkan kosong jika ingin menggunakan logo default</div>
+                  </div>
+                  <button type="button" onclick="resetLogo()" style="color: #ff4444; background: none; border: 1px solid #ff4444; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">Hapus Logo</button>
+                </div>
+              </div>
+
+              <!-- Waktu Sholat -->
+              <h3 style="color: ${accentColor}; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 15px;">2. Waktu Sholat (HH:MM)</h3>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;">
+                ${Object.entries(CONFIG.waktu_sholat).map(([key, val]) => `
+                  <div>
+                    <label style="display: block; color: #aaa; margin-bottom: 5px; text-transform: capitalize;">${key === 'dhuhur' ? "Dhuhur / Jum'at" : key}</label>
+                    <input type="time" name="waktu_${key}" value="${val}" style="width: 100%; padding: 8px; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 4px;">
+                  </div>
+                `).join('')}
+              </div>
+
+              <!-- Keuangan -->
+              <h3 style="color: ${accentColor}; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 15px;">3. Keuangan Masjid</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div>
+                  <label style="display: block; color: #aaa; margin-bottom: 5px;">Periode</label>
+                  <input type="text" name="periode_keuangan" value="${CONFIG.periode_keuangan}" style="width: 100%; padding: 8px; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 4px;">
+                </div>
+                <div>
+                  <label style="display: block; color: #aaa; margin-bottom: 5px;">Pemasukan (Rp)</label>
+                  <input type="number" name="pemasukan" value="${CONFIG.pemasukan}" style="width: 100%; padding: 8px; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 4px;">
+                </div>
+                <div>
+                  <label style="display: block; color: #aaa; margin-bottom: 5px;">Pengeluaran (Rp)</label>
+                  <input type="number" name="pengeluaran" value="${CONFIG.pengeluaran}" style="width: 100%; padding: 8px; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 4px;">
+                </div>
+              </div>
+
+              <!-- Pengumuman -->
+              <h3 style="color: ${accentColor}; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 15px;">4. Pengumuman</h3>
+              <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                <div>
+                  <label style="display: block; color: #aaa; margin-bottom: 5px;">Info 1</label>
+                  <textarea name="info_1" rows="2" style="width: 100%; padding: 8px; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 4px;">${CONFIG.info_1 || ''}</textarea>
+                </div>
+                <div>
+                  <label style="display: block; color: #aaa; margin-bottom: 5px;">Info 2</label>
+                  <textarea name="info_2" rows="2" style="width: 100%; padding: 8px; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 4px;">${CONFIG.info_2 || ''}</textarea>
+                </div>
+                <div>
+                  <label style="display: block; color: #aaa; margin-bottom: 5px;">Info 3</label>
+                  <textarea name="info_3" rows="2" style="width: 100%; padding: 8px; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 4px;">${CONFIG.info_3 || ''}</textarea>
+                </div>
+              </div>
+
+              <!-- Running Text -->
+              <h3 style="color: ${accentColor}; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 15px;">5. Running Text Bawah</h3>
+              <div style="margin-bottom: 20px;">
+                <textarea name="running_text" rows="3" style="width: 100%; padding: 8px; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 4px;">${CONFIG.running_text}</textarea>
+              </div>
+
+              <!-- Audio Settings -->
+              <h3 style="color: ${accentColor}; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 15px;">6. Suara Adzan & Iqomah</h3>
+              <div style="margin-bottom: 20px; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 8px;">
+                 <div style="margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
+                   <label style="display: block; color: #aaa; margin-bottom: 8px; font-weight: bold;">🔊 Suara Adzan (WAV/MP3)</label>
+                   <div style="display: flex; flex-direction: column; gap: 10px;">
+                     <div style="display: flex; gap: 10px; align-items: center;">
+                       <input type="file" id="audio_adzan_input" accept="audio/*" style="flex: 1; color: #aaa; font-size: 12px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px; border: 1px solid #444;">
+                     </div>
+                     ${CONFIG.audio && CONFIG.audio.adzan ? `
+                        <div style="display: flex; gap: 10px; align-items: center; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 4px;">
+                          <span style="color: #888; font-size: 11px;">Saat ini:</span>
+                          <audio controls src="${CONFIG.audio.adzan}" style="height: 30px; width: 200px;"></audio>
+                          <button type="button" onclick="clearAudio('adzan')" style="color: #ff4444; background: none; border: 1px solid #ff4444; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">🗑️ Hapus</button>
+                        </div>
+                     ` : '<div style="color: #666; font-size: 12px; font-style: italic;">* Belum ada suara kustom (Hening)</div>'}
+                   </div>
+                 </div>
+                 <div>
+                   <label style="display: block; color: #aaa; margin-bottom: 8px; font-weight: bold;">🔔 Suara Iqomah (WAV/MP3)</label>
+                   <div style="display: flex; flex-direction: column; gap: 10px;">
+                     <div style="display: flex; gap: 10px; align-items: center;">
+                       <input type="file" id="audio_iqomah_input" accept="audio/*" style="flex: 1; color: #aaa; font-size: 12px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px; border: 1px solid #444;">
+                     </div>
+                     ${CONFIG.audio && CONFIG.audio.iqomah ? `
+                        <div style="display: flex; gap: 10px; align-items: center; background: rgba(0,0,0,0.2); padding: 5px; border-radius: 4px;">
+                          <span style="color: #888; font-size: 11px;">Saat ini:</span>
+                          <audio controls src="${CONFIG.audio.iqomah}" style="height: 30px; width: 200px;"></audio>
+                          <button type="button" onclick="clearAudio('iqomah')" style="color: #ff4444; background: none; border: 1px solid #ff4444; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px;">🗑️ Hapus</button>
+                        </div>
+                     ` : '<div style="color: #666; font-size: 12px; font-style: italic;">* Default: Bunyi Beep 3x</div>'}
+                   </div>
+                 </div>
+              </div>
+
+              <!-- Tampilan & Tema -->
+              <h3 style="color: ${accentColor}; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 15px;">7. Tampilan & Tema</h3>
+              <div style="margin-bottom: 20px;">
+                <label style="display: block; color: #aaa; margin-bottom: 10px;">Pilih Tema Warna</label>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                  ${THEMES.map(theme => `
+                    <div onclick="applyTheme('${theme.id}')" style="cursor: pointer; border: 1px solid #444; border-radius: 8px; overflow: hidden; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                      <div style="height: 40px; background: linear-gradient(135deg, ${theme.colors.header}, ${theme.colors.background}); display: flex; align-items: center; justify-content: center;">
+                        <div style="width: 15px; height: 15px; background: ${theme.colors.accent}; border-radius: 50%; border: 1px solid rgba(255,255,255,0.5);"></div>
+                      </div>
+                      <div style="padding: 6px; background: #2a2a2a; text-align: center;">
+                        <span style="color: white; font-size: 11px; font-weight: bold;">${theme.name}</span>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+
+                <div style="background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px;">
+                  <label style="display: block; color: #aaa; margin-bottom: 10px; font-size: 12px; font-weight: bold;">Kustomisasi Warna (Manual)</label>
+                  <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                     <div>
+                       <label style="color: #888; font-size: 11px;">Background (Dasar)</label>
+                       <div style="display: flex; gap: 5px;">
+                         <input type="color" id="color_background_picker" value="${CONFIG.colors.background}" onchange="document.getElementById('color_background').value = this.value" style="width: 30px; height: 30px; border: none; padding: 0; background: none; cursor: pointer;">
+                         <input type="text" name="color_background" id="color_background" value="${CONFIG.colors.background}" style="flex: 1; background: #2a2a2a; border: 1px solid #444; color: white; padding: 4px; border-radius: 4px; font-size: 12px;" onchange="document.getElementById('color_background_picker').value = this.value">
+                       </div>
+                     </div>
+                     <div>
+                       <label style="color: #888; font-size: 11px;">Header (Atas)</label>
+                       <div style="display: flex; gap: 5px;">
+                         <input type="color" id="color_header_picker" value="${CONFIG.colors.header}" onchange="document.getElementById('color_header').value = this.value" style="width: 30px; height: 30px; border: none; padding: 0; background: none; cursor: pointer;">
+                         <input type="text" name="color_header" id="color_header" value="${CONFIG.colors.header}" style="flex: 1; background: #2a2a2a; border: 1px solid #444; color: white; padding: 4px; border-radius: 4px; font-size: 12px;" onchange="document.getElementById('color_header_picker').value = this.value">
+                       </div>
+                     </div>
+                     <div>
+                       <label style="color: #888; font-size: 11px;">Accent (Aksen/Highlight)</label>
+                       <div style="display: flex; gap: 5px;">
+                         <input type="color" id="color_accent_picker" value="${CONFIG.colors.accent}" onchange="document.getElementById('color_accent').value = this.value" style="width: 30px; height: 30px; border: none; padding: 0; background: none; cursor: pointer;">
+                         <input type="text" name="color_accent" id="color_accent" value="${CONFIG.colors.accent}" style="flex: 1; background: #2a2a2a; border: 1px solid #444; color: white; padding: 4px; border-radius: 4px; font-size: 12px;" onchange="document.getElementById('color_accent_picker').value = this.value">
+                       </div>
+                     </div>
+                     <div>
+                       <label style="color: #888; font-size: 11px;">Text Utama</label>
+                       <div style="display: flex; gap: 5px;">
+                         <input type="color" id="color_text_picker" value="${CONFIG.colors.text}" onchange="document.getElementById('color_text').value = this.value" style="width: 30px; height: 30px; border: none; padding: 0; background: none; cursor: pointer;">
+                         <input type="text" name="color_text" id="color_text" value="${CONFIG.colors.text}" style="flex: 1; background: #2a2a2a; border: 1px solid #444; color: white; padding: 4px; border-radius: 4px; font-size: 12px;" onchange="document.getElementById('color_text_picker').value = this.value">
+                       </div>
+                     </div>
+                     <div>
+                       <label style="color: #888; font-size: 11px;">Text Sekunder</label>
+                       <div style="display: flex; gap: 5px;">
+                         <input type="color" id="color_secondary_text_picker" value="${CONFIG.colors.secondary_text}" onchange="document.getElementById('color_secondary_text').value = this.value" style="width: 30px; height: 30px; border: none; padding: 0; background: none; cursor: pointer;">
+                         <input type="text" name="color_secondary_text" id="color_secondary_text" value="${CONFIG.colors.secondary_text}" style="flex: 1; background: #2a2a2a; border: 1px solid #444; color: white; padding: 4px; border-radius: 4px; font-size: 12px;" onchange="document.getElementById('color_secondary_text_picker').value = this.value">
+                       </div>
+                     </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Slide Images & Text -->
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 15px;">
+                <h3 style="color: ${accentColor}; margin: 0;">8. Gambar & Teks Slide</h3>
+                <button type="button" onclick="addSlide()" style="background: ${accentColor}; color: #000; border: none; padding: 5px 10px; border-radius: 4px; font-weight: bold; cursor: pointer;">+ Tambah Slide</button>
+              </div>
+              <div id="slides-container" style="margin-bottom: 20px;">
+                ${slidesHtml}
+              </div>
+
+              <!-- Actions -->
+              <div style="display: flex; gap: 10px; margin-top: 30px; border-top: 1px solid #333; padding-top: 20px;">
+                <button type="submit" style="flex: 1; background: ${accentColor}; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer;">💾 Simpan Pengaturan</button>
+                <button type="button" onclick="resetConfig()" style="background: #ff4444; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">↻ Reset Default</button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(modal);
+    }
+
+    function closeSettings() {
+      const modal = document.getElementById('settingsModal');
+      if (modal) modal.remove();
+    }
+
+    function addSlide() {
+      const newSlide = { type: 'image', url: '', text: 'Teks Baru' };
+      CONFIG.slides.push(newSlide);
+      closeSettings();
+      openSettings();
+    }
+
+    function removeSlide(index) {
+      if (confirm('Hapus slide ini?')) {
+        CONFIG.slides.splice(index, 1);
+        closeSettings();
+        openSettings();
+      }
+    }
+
+    function clearAudio(type) {
+      if (confirm(`Hapus audio kustom untuk ${type}?`)) {
+        if (CONFIG.audio) {
+          CONFIG.audio[type] = null;
+          localStorage.setItem('mosqueConfig', JSON.stringify(CONFIG));
+          closeSettings();
+          openSettings();
+        }
+      }
+    }
+
+    function resetLogo() {
+      if (confirm('Hapus logo kustom dan kembali ke default?')) {
+        CONFIG.logo = null;
+        localStorage.setItem('mosqueConfig', JSON.stringify(CONFIG));
+        closeSettings();
+        openSettings();
+      }
+    }
+
+    function resetConfig() {
+      if (confirm('Kembalikan ke pengaturan awal? Semua perubahan akan hilang.')) {
+        localStorage.removeItem('mosqueConfig');
+        location.reload();
+      }
+    }
+
+    async function saveSettings(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+
+      // Update Basic Info
+      CONFIG.nama_masjid = formData.get('nama_masjid');
+      CONFIG.alamat_masjid = formData.get('alamat_masjid');
+      CONFIG.hijri_adjustment = parseInt(formData.get('hijri_adjustment')) || 0;
+      CONFIG.gregorian_adjustment = parseInt(formData.get('gregorian_adjustment')) || 0;
+      
+      // Update Logo
+      const logoFile = document.getElementById('logo_file_input').files[0];
+      const logoUrl = formData.get('logo_url');
+      
+      if (logoFile) {
+        try {
+           CONFIG.logo = await readFileAsDataURL(logoFile);
+        } catch (err) {
+           console.error("Error reading logo file:", err);
+        }
+      } else if (logoUrl && logoUrl.trim() !== '') {
+        CONFIG.logo = logoUrl;
+      }
+      
+      // Update Prayer Times
+      CONFIG.waktu_sholat.imsak = formData.get('waktu_imsak');
+      CONFIG.waktu_sholat.subuh = formData.get('waktu_subuh');
+      CONFIG.waktu_sholat.dhuha = formData.get('waktu_dhuha');
+      CONFIG.waktu_sholat.dhuhur = formData.get('waktu_dhuhur');
+      CONFIG.waktu_sholat.ashar = formData.get('waktu_ashar');
+      CONFIG.waktu_sholat.maghrib = formData.get('waktu_maghrib');
+      CONFIG.waktu_sholat.isya = formData.get('waktu_isya');
+
+      // Update Finance
+      CONFIG.periode_keuangan = formData.get('periode_keuangan');
+      CONFIG.pemasukan = parseInt(formData.get('pemasukan'));
+      CONFIG.pengeluaran = parseInt(formData.get('pengeluaran'));
+
+      // Update Info
+      CONFIG.info_1 = formData.get('info_1');
+      CONFIG.info_2 = formData.get('info_2');
+      CONFIG.info_3 = formData.get('info_3');
+      CONFIG.running_text = formData.get('running_text');
+
+      // Update Colors
+      CONFIG.colors.background = formData.get('color_background');
+      CONFIG.colors.header = formData.get('color_header');
+      CONFIG.colors.accent = formData.get('color_accent');
+      CONFIG.colors.text = formData.get('color_text');
+      CONFIG.colors.secondary_text = formData.get('color_secondary_text');
+
+      // Update Audio
+      const adzanFile = document.getElementById('audio_adzan_input').files[0];
+      const iqomahFile = document.getElementById('audio_iqomah_input').files[0];
+
+      if (adzanFile) {
+        try {
+          CONFIG.audio.adzan = await readFileAsDataURL(adzanFile);
+        } catch (err) {
+          console.error("Error reading adzan file:", err);
+          alert("Gagal membaca file Adzan: " + err.message);
+        }
+      }
+
+      if (iqomahFile) {
+        try {
+           CONFIG.audio.iqomah = await readFileAsDataURL(iqomahFile);
+        } catch (err) {
+           console.error("Error reading iqomah file:", err);
+           alert("Gagal membaca file Iqomah: " + err.message);
+        }
+      }
+
+      // Update Slides
+      const newSlides = [];
+      const slideContainers = document.querySelectorAll('.slide-input-group');
+      
+      const slidePromises = Array.from(slideContainers).map(async (container, index) => {
+        const url = formData.get(`slide_url_${index}`);
+        const text = formData.get(`slide_text_${index}`);
+        const type = formData.get(`slide_type_${index}`);
+        const id = formData.get(`slide_id_${index}`);
+        const existingData = formData.get(`slide_existing_data_${index}`);
+        const fileInput = document.getElementById(`file_input_${index}`);
+        
+        let slide = {
+          text: text
+        };
+
+        // Priority: 1. New File, 2. URL Input, 3. Existing Data (if type was image), 4. Default
+        
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+          // Process uploaded file
+          try {
+            const base64 = await readFileAsDataURL(fileInput.files[0]);
+            slide.type = 'image';
+            slide.url = base64;
+          } catch (err) {
+            console.error("Error reading file:", err);
+            // Fallback to existing or url
+            if (url && url.trim() !== '') {
+               slide.type = 'image';
+               slide.url = url;
+            } else if (existingData) {
+               slide.type = 'image';
+               slide.url = existingData;
+            }
+          }
+        } else if (url && url.trim() !== '') {
+          slide.type = 'image';
+          slide.url = url;
+        } else if (existingData) {
+           // User didn't change anything, keep existing image
+           slide.type = 'image';
+           slide.url = existingData;
+        } else {
+          // If no image source, check if it was a default slide
+          if (type === 'default') {
+            slide.type = 'default';
+            slide.id = parseInt(id);
+          } else {
+            // It was an image slide but now cleared? Or a new slide with no image?
+            // Default to image type but empty (black screen) or maybe switch to default style if we could?
+            // Let's just keep it as image with empty url (black background)
+            slide.type = 'image';
+            slide.url = ''; 
+          }
+        }
+        
+        return slide;
+      });
+      
+      CONFIG.slides = await Promise.all(slidePromises);
+
+      // Save to LocalStorage
+      try {
+        localStorage.setItem('mosqueConfig', JSON.stringify(CONFIG));
+        alert('Pengaturan berhasil disimpan!');
+        location.reload();
+      } catch (e) {
+        if (e.name === 'QuotaExceededError') {
+          alert('Gagal menyimpan: Ukuran gambar terlalu besar. Coba gunakan gambar yang lebih kecil.');
+        } else {
+          alert('Terjadi kesalahan saat menyimpan pengaturan.');
+          console.error(e);
+        }
+      }
+    }
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = (e) => reject(e);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Initialize app
+    renderApp();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9b45b54270a6e8df',t:'MTc2NjgwNTg5OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
