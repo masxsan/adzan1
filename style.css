@@ -1,0 +1,144 @@
+body {
+      box-sizing: border-box;
+    }
+    
+    /* Embedded Essential CSS - No External Dependencies */
+    *, ::before, ::after { box-sizing: border-box; border-width: 0; border-style: solid; }
+    html { line-height: 1.5; -webkit-text-size-adjust: 100%; tab-size: 4; font-family: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif; height: 100%; margin: 0; padding: 0; }
+    body { margin: 0; line-height: inherit; height: 100%; width: 100%; padding: 0; }
+    h1, h2, h3, h4, h5, h6 { font-size: inherit; font-weight: inherit; margin: 0; }
+    a { color: inherit; text-decoration: inherit; }
+    button, input, select, textarea { font-family: inherit; font-size: 100%; line-height: inherit; color: inherit; margin: 0; padding: 0; }
+    button, select { text-transform: none; }
+    button { cursor: pointer; }
+    
+    /* Utility Classes */
+    .h-full { height: 100%; }
+    .w-full { width: 100%; }
+    .w-1\/6 { width: 16.6667%; }
+    .w-1\/5 { width: 20%; }
+    .flex { display: flex; }
+    .flex-1 { flex: 1 1 0%; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-3 { gap: 0.75rem; }
+    .gap-6 { gap: 1.5rem; }
+    .gap-8 { gap: 2rem; }
+    .space-y-2 > :not([hidden]) ~ :not([hidden]) { margin-top: 0.5rem; }
+    .overflow-hidden { overflow: hidden; }
+    .overflow-y-auto { overflow-y: auto; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .rounded-xl { border-radius: 0.75rem; }
+    .rounded-3xl { border-radius: 1.5rem; }
+    .rounded-full { border-radius: 9999px; }
+    .p-2 { padding: 0.5rem; }
+    .p-3 { padding: 0.75rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-6 { margin-bottom: 1.5rem; }
+    .text-center { text-align: center; }
+    .absolute { position: absolute; }
+    .relative { position: relative; }
+    .inset-0 { inset: 0; }
+    .transform { transform: translate(var(--tw-translate-x, 0), var(--tw-translate-y, 0)); }
+    .transition-opacity { transition-property: opacity; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+    .duration-300 { transition-duration: 300ms; }
+    .duration-1000 { transition-duration: 1000ms; }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      font-family: system-ui, -apple-system, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+      overflow: hidden !important;
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    #app {
+      overflow: hidden !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: calc(100vw - 4px);
+      height: calc(100vh + 2cm - 4px);
+      position: relative;
+      border: 2px solid #C6D166; /* Border hijau keemasan mengikuti tema */
+      border-radius: 8px;
+    }
+    
+    .islamic-pattern {
+      background-image: 
+        repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.02) 35px, rgba(255,255,255,.02) 70px),
+        repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(255,255,255,.02) 35px, rgba(255,255,255,.02) 70px);
+    }
+    
+    .prayer-card {
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    
+    .prayer-card.active {
+      background: linear-gradient(135deg, rgba(255,193,7,0.2), rgba(255,152,0,0.2));
+      box-shadow: 0 8px 32px rgba(255,193,7,0.3);
+      transform: scale(1.02);
+    }
+    
+    .countdown-pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    
+    .marquee {
+      animation: scroll 25s linear infinite;
+      white-space: nowrap;
+      display: inline-block;
+    }
+    
+    @keyframes scroll {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-100%); }
+    }
+    
+    .glow-text {
+      text-shadow: 0 0 20px rgba(255,193,7,0.5);
+    }
+    
+    /* Override border radius for image slider */
+    div[style*='height: calc(70% + 1.5cm)'] {
+      border-radius: 5px !important;
+    }
+    
+    /* Petugas Sholat table alignment */
+    /* Keep headers centered, align data cells to left */
+    /* Override inline text-align for data cells in petugas tables */
+    table tbody td[style*='text-align: center'] {
+      text-align: left !important;
+    }
+    
+    /* Specifically target petugas sholat tables */
+    table[style*='border-collapse: collapse'] tbody td {
+      text-align: left !important;
+    }
+    
+    /* Keep headers centered */
+    table thead th {
+      text-align: center !important;
+    }
+  @view-transition { navigation: auto; }
